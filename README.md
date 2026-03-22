@@ -2,6 +2,14 @@
 
 Prueba técnica — Exploración de países con Web Components (Lit 3).
 
+## Declaración de uso de asistentes de IA
+Todo texto generado o sugerido por IA esta revisado por mi persona, en los siguientes bloques concretos:
+
+- **README — sección «SSR / Hydration»**: Definiciones y argumentos.
+- **Estructura del código** Diagrama en texto del árbol de directorios.
+- **Código — accesibilidad:** Definiciones e implementación en componentes (landmarks, ARIA, gestión de foco, tecla Escape, skip link, `prefers-reduced-motion`, `lang` en HTML).
+- **Código y config — tests:** Definicion e implementacion de Web Test Runner, `web-test-runner.config.mjs`, dependencias asociadas, archivos `pagination.test.ts` y `recent-searches.test.ts`.
+
 ## SSR / Hydration: Comentario técnico sobre el enfoque
 
 **Cómo está montada la app.** Es solo cliente y una SPA (single-page application): El HTML inicial es básicamente un contenedor; Vite empaqueta el JavaScript y, al ejecutarlo en el navegador, Lit pinta los Web Components (plantillas, Shadow DOM, eventos). Lo que vemos en el cliente (lista, detalle, búsqueda) sale de ese código y de `fetch` a la API, no de HTML prearmado por la app en el servidor.
@@ -26,22 +34,30 @@ Además, si el HTML del servidor y el que Lit generaría en el cliente no fueran
 
 Tras cada búsqueda completada (sin cancelar por una nueva petición), el término se guarda con `src/utils/recent-searches.ts` (clave `country-explorer-recent-searches`, máximo 10 entradas, sin duplicar ignorando mayúsculas). `country-search` muestra chips "Recientes" para repetir la búsqueda; si `localStorage` no está disponible, la utilidad falla en silencio.
 
+## Accesibilidad
+
+- **ARIA y landmarks:** `role="banner"` en la cabecera, `<main>` con `aria-label`, `role="search"` en el buscador, regiones en lista de resultados y en el panel de detalle, estados de carga/error/vacío (`aria-busy`, `role="alert"` / `status`, `aria-live` donde aplica), `aria-label` en tarjetas y chips recientes, lista de países con estructura `list` / `listitem` donde corresponde.
+- **Foco:** botón para saltar al contenido principal (enfoca el `<main>`; no usa `#` dentro del Shadow DOM), al abrir el detalle el foco va al título del país, al volver (Volver o Escape) el foco vuelve a la tarjeta correspondiente (ajustando la página de paginación si hace falta).
+- **Movimiento reducido:** se respeta `prefers-reduced-motion` en transiciones/animaciones del detalle, lista (spinner y tarjetas), buscador, botones del paginador y `scroll-behavior` global en `app.scss`.
+
+`index.html` usa **`lang="es"`** acorde a la interfaz.
+
 ## Tests
 
-El reto pide al menos dos pruebas unitarias con Web Test Runner (WTR), Open WC Testing o Jest. En este repo se usa WTR + Open WC Testing (no Jest). 
+El reto pide al menos dos pruebas unitarias con Web Test Runner (WTR), Open WC Testing o Jest. En este repo se usa WTR + Open WC Testing (no Jest).
 
-- **Pruebas unitarias** — Scripts que comprueban que, con unos datos de entrada, el resultado es el esperado.  
+- **Pruebas unitarias** — Scripts que comprueban que, con unos datos de entrada, el resultado es el esperado.
 
-- **Web Test Runner (WTR)** — Orquesta los tests: los encuentra, los ejecuta y muestra el resultado en la terminal. Comando *`npm run test`, paquete `@web/test-runner`.
+- **Web Test Runner (WTR)** — Orquesta los tests: los encuentra, los ejecuta y muestra el resultado en la terminal. Comando \*`npm run test`, paquete `@web/test-runner`.
 
 - **Open WC Testing** — Comprobaciones del test, escritas con la función `expect` y métodos tipo `.to.equal` / `.to.deep.equal`. Paquete `@open-wc/testing`, importado en `pagination.test.ts` y `recent-searches.test.ts`.
 
 - **esbuild (vía dev server)** — Compila TypeScript para el navegador de pruebas. `@web/dev-server-esbuild` en `web-test-runner.config.mjs`.
 
-- **Playwright** — Arranca un navegador “headless” solo para correr los tests.  `@web/test-runner-playwright` y `playwrightLauncher` en `web-test-runner.config.mjs`.
+- **Playwright** — Arranca un navegador “headless” solo para correr los tests. `@web/test-runner-playwright` y `playwrightLauncher` en `web-test-runner.config.mjs`.
 
 - **Chromium** — Es el motor de navegador de código abierto sobre el que se apoyan Chrome, Edge y otros. Playwright descarga una copia solo para tests (a veces sin ventana visible) y ahí se ejecuta tu JavaScript como en un navegador de verdad. Eso importa para APIs del navegador, por ejemplo `localStorage` en `recent-searches.test.ts`.  
-  No hay una carpeta “Chromium” en el repo; el binario queda en la máquina cuando se corre los tests por primera vez. 
+  No hay una carpeta “Chromium” en el repo; el binario queda en la máquina cuando se corre los tests por primera vez.
 
 - **`src/utils/pagination.test.ts`**: paginación (trozos por página, conteo de páginas, rangos, `clampPage`).
 - **`src/utils/recent-searches.test.ts`**: historial en `localStorage` (orden, duplicados sin distinguir mayúsculas, máximo 10).
