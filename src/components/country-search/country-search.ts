@@ -33,7 +33,7 @@ export class CountrySearch extends LitElement {
     this.requestUpdate();
   }
 
-  // DECISION: "Buscando…" se muestra entre la última pulsación de tecla y la emisión del evento, no después.
+  // DECISION: “Buscando…” mientras el debounce está pendiente (antes de emitir el evento), no solo después: el reto técnico pide feedback durante el debounce, no únicamente cuando ya salió el término.
   private onInput() {
     this.setPending(true);
     this.scheduleNotify();

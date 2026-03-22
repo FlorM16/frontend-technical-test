@@ -6,7 +6,7 @@ export function debounce<A extends unknown[]>(
 ): (...args: A) => void {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
-  // DECISION: debounce trailing-edge: el callback solo corre tras waitMs sin nuevas llamadas
+  // DECISION: trailing-edge y no leading-edge: el callback corre tras la pausa sin teclas, no al primer tecleo; con esto podemos “filtrar mientras escribe” sin una petición por pulsación.
   return (...args: A) => {
     if (timeoutId !== undefined) {
       clearTimeout(timeoutId);

@@ -29,7 +29,7 @@ export class CountryList extends LitElement {
   }
 
   private get visibleCountries(): Country[] {
-    // DECISION: el límite de 12 aplica solo al render; la prop `countries` sigue siendo la lista completa que envía el explorer.
+    // DECISION: corto a 12 solo al pintar (slice en el render), y no en el explorer: el padre debe seguir pasando la lista completa; el tope es presentación (documentado en el README).
     return this.countries.slice(0, MAX_CARDS);
   }
 

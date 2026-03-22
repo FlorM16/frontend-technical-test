@@ -27,13 +27,14 @@ export class CountryExplorer extends LitElement {
     this.requestUpdate();
   }
 
+  // DECISION: aborto en disconnectedCallback y no en el constructor: el constructor corre una sola vez al crear el elemento; si el usuario sale de la página o se quita el nodo, hace falta cancelar fetch en curso para no dejar red activa ni actualizar estado de un componente ya desmontado.
   disconnectedCallback() {
     this.abortCtrl?.abort();
     super.disconnectedCallback();
   }
 
   private async fetchCountries(term: string) {
-    // DECISION: cancelo la petición en curso antes de iniciar otra para evitar condiciones de carrera entre búsquedas rápidas.
+    // DECISION: aborto la petición anterior con AbortController antes de abrir otra, en lugar de dejar varias en vuelo: si no, una respuesta lenta antigua podría pisar una búsqueda nueva.
     this.abortCtrl?.abort();
     this.abortCtrl = new AbortController();
     this.lastQuery = term;
