@@ -65,6 +65,15 @@ El reto pide al menos dos pruebas unitarias con Web Test Runner (WTR), Open WC T
 
 En la raíz del proyecto: `npm run test`. La primera vez puede tardar si hay que descargar Chromium para Playwright.
 
+## Elección de Lit 3 y Vite
+
+**Lit 3** se adopta porque el enunciado lo permite y ofrece plantillas declarativas, reactividad y Shadow DOM con menos boilerplate que Web Components “a mano”, manteniendo estándares del navegador. **Vite** se usa como empaquetador y servidor de desarrollo por rapidez y configuración mínima.
+
+**Cuándo no se elegiría Lit (y qué alternativa encaja mejor):**
+
+- **Pieza muy pequeña incrustada en páginas de otros** (por ejemplo un botón o un bloque que muchos sitios copian con un `<script>`): ahí importa que el archivo JavaScript pese **poco** y a veces **no haya** paso de build. Lit añade librería y proceso de empaquetado; en ese caso suele preferirse **Web Components nativos** (una clase, `attachShadow`, HTML en plantilla o string) o un **único script** generado de forma muy simple.
+- **Producto y equipo ya montados en React** (mismas convenciones, librerías, formación y, si aplica, SSR con ese stack): meter Lit solo para un módulo aislado **complica** el proyecto (dos formas de hacer UI, dos herramientas). En ese escenario se seguiría con **React** salvo que hubiera una razón fuerte para estandarizar en estándares web puros.
+
 ## Estructura del código
 
 ```text
