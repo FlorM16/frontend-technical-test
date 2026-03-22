@@ -60,7 +60,7 @@ export class CountryDetail extends LitElement {
     }
   }
 
-  // DECISION: uso deferVisibleClass (requestAnimationFrame) antes de .panel--visible y no abro el panel visible en el primer render: sin ese desfase el navegador no aplica transition de entrada (no hay estado “antes” y “después”).
+  // DECISION: la clase que deja el panel “visible” se aplica en el siguiente frame (requestAnimationFrame), no en el primer pintado: si el panel ya nace visible, el navegador no llega a animar la entrada; hace falta un instante en estado “oculto” y luego el cambio para que la transición CSS se note.
   private deferVisibleClass() {
     if (!this.country || this.exiting) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -98,7 +98,7 @@ export class CountryDetail extends LitElement {
     this.exiting = true;
   };
 
-  // DECISION: emito country-detail-back en transitionend y no en el click de Volver: si el padre oculta el componente al instante, se corta la transition de salida; hay que esperar a que el CSS termine.
+  // DECISION: se emite country-detail-back en transitionend y no en el click de Volver, porque si el padre desmonta el panel de inmediato se corta la transición de salida; se prefiere esperar al fin de la animación CSS.
   private readonly onExitTransitionEnd = (e: Event) => {
     const ev = e as TransitionEvent;
     const panel = this.renderRoot.querySelector('.panel');

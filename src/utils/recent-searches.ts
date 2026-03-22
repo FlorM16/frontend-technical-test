@@ -34,6 +34,6 @@ export function addRecentSearch(term: string): void {
     const next = [normalized, ...prev].slice(0, MAX_ITEMS);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   } catch {
-    //Si setItem falla (cuota, privado, bloqueo), la app sigue sin error.
+    // DECISION: si setItem falla (cuota, modo privado, bloqueo), no se relanza el error: la persistencia es opcional y la aplicación debe seguir usable.
   }
 }

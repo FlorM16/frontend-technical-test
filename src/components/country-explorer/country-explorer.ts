@@ -44,14 +44,14 @@ export class CountryExplorer extends LitElement {
     this.renderRoot.querySelector<HTMLElement>('#explorer-content')?.focus();
   };
 
-  // DECISION: aborto en disconnectedCallback y no en el constructor: el constructor corre una sola vez al crear el elemento; si el usuario sale de la página o se quita el nodo, hace falta cancelar fetch en curso para no dejar red activa ni actualizar estado de un componente ya desmontado.
+  // DECISION: se aborta el fetch en disconnectedCallback y no en el constructor, porque el constructor solo se ejecuta al instanciar el elemento; al desmontar el nodo hace falta cancelar peticiones en curso y evitar actualizar estado de un componente ya fuera del DOM.
   disconnectedCallback() {
     this.abortCtrl?.abort();
     super.disconnectedCallback();
   }
 
   private async fetchCountries(term: string) {
-    // DECISION: aborto la petición anterior con AbortController antes de abrir otra, en lugar de dejar varias en vuelo: si no, una respuesta lenta antigua podría pisar una búsqueda nueva.
+    // DECISION: se aborta la petición anterior con AbortController antes de abrir otra, en lugar de permitir varias respuestas en vuelo: sin abort, una respuesta antigua lenta podría sobrescribir el resultado de una búsqueda más reciente (condición de carrera).
     this.abortCtrl?.abort();
     this.abortCtrl = new AbortController();
     this.lastQuery = term;
@@ -73,6 +73,7 @@ export class CountryExplorer extends LitElement {
     } finally {
       this.loading = false;
       const trimmed = term.trim();
+      // DECISION: se persiste en localStorage solo si el fetch terminó sin abort, y se hace también cuando hay 0 resultados o error de red, en lugar de guardar solo búsquedas exitosas: así “Recientes” refleja el término intentado, no únicamente respuestas con países.
       if (!aborted && trimmed) {
         addRecentSearch(trimmed);
         this.recentSearches = getRecentSearches();
@@ -126,13 +127,13 @@ export class CountryExplorer extends LitElement {
         </header>
         <main id="explorer-content" class="content-main" tabindex="-1" aria-label="Explorador de países">
           ${this.selectedCountry
-            ? html`
+        ? html`
                 <country-detail
                   .country=${this.selectedCountry}
                   @country-detail-back=${this.onBack}
                 ></country-detail>
               `
-            : html`
+        : html`
                 <country-list
                   .countries=${this.countries}
                   .loading=${this.loading}

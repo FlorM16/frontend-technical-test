@@ -3,16 +3,17 @@
 Prueba técnica — Exploración de países con Web Components (Lit 3).
 
 ## Declaración de uso de asistentes de IA
-Todo texto generado o sugerido por IA esta revisado por mi persona, en los siguientes bloques concretos:
 
-- **README — sección «SSR / Hydration»**: Definiciones y argumentos.
-- **Estructura del código** Diagrama en texto del árbol de directorios.
-- **Código — accesibilidad:** Definiciones e implementación en componentes (landmarks, ARIA, gestión de foco, tecla Escape, skip link, `prefers-reduced-motion`, `lang` en HTML).
-- **Código y config — tests:** Definicion e implementacion de Web Test Runner, `web-test-runner.config.mjs`, dependencias asociadas, archivos `pagination.test.ts` y `recent-searches.test.ts`.
+Se ha revisado el contenido generado o sugerido mediante asistentes de IA en los bloques siguientes:
+
+- **README — sección «SSR / Hydration»:** definiciones y argumentos.
+- **README — estructura del código:** diagrama en texto del árbol de directorios.
+- **Código — accesibilidad:** definiciones en README e implementación en componentes (landmarks, ARIA, gestión de foco, tecla Escape, skip link, `prefers-reduced-motion`, `lang` en HTML).
+- **Código y config — tests:** definiciones en README, Web Test Runner, `web-test-runner.config.mjs`, dependencias asociadas, archivos `pagination.test.ts` y `recent-searches.test.ts`.
 
 ## SSR / Hydration: Comentario técnico sobre el enfoque
 
-**Cómo está montada la app.** Es solo cliente y una SPA (single-page application): El HTML inicial es básicamente un contenedor; Vite empaqueta el JavaScript y, al ejecutarlo en el navegador, Lit pinta los Web Components (plantillas, Shadow DOM, eventos). Lo que vemos en el cliente (lista, detalle, búsqueda) sale de ese código y de `fetch` a la API, no de HTML prearmado por la app en el servidor.
+**Cómo está montada la app.** Es solo cliente y una SPA (single-page application): el HTML inicial es básicamente un contenedor; Vite empaqueta el JavaScript y, al ejecutarlo en el navegador, Lit pinta los Web Components (plantillas, Shadow DOM, eventos). En el cliente, la lista, el detalle y la búsqueda se construyen con ese código y con `fetch` a la API, no con HTML prearmado por la app en el servidor.
 
 **SSR** (_server-side rendering_). Un proceso en el servidor genera HTML antes de la respuesta al cliente, para acercar contenido visible o indexable al primer viaje de red, según el producto.
 
@@ -28,7 +29,7 @@ Además, si el HTML del servidor y el que Lit generaría en el cliente no fueran
 - **`country-list`** muestra 12 tarjetas por página y, si hay más resultados, un pie con Anterior / Siguiente, texto del tipo “Página 2 de 4 · 13–24 de 40” y `aria-live` para lectores de pantalla.
 - La lógica de página está en **`src/utils/pagination.ts`** (`PAGE_SIZE`, `getPageSlice`, `getPageCount`, etc.). Cada búsqueda nueva reinicia la página a 1; al volver del detalle, si la tarjeta estaba en otra página, la lista salta a esa página antes de devolver el foco.
 
-**Nota:** Se eligió **paginación por páginas** en lugar de scroll infinito para un comportamiento predecible, menos carga en el DOM de golpe y controles explícitos accesibles desde teclado.
+**Nota:** Se prefiere **paginación por páginas** frente a scroll infinito por un comportamiento más predecible, menos carga de nodos de golpe y controles explícitos accesibles desde teclado.
 
 ## Búsquedas recientes (`localStorage`)
 
@@ -48,7 +49,7 @@ El reto pide al menos dos pruebas unitarias con Web Test Runner (WTR), Open WC T
 
 - **Pruebas unitarias** — Scripts que comprueban que, con unos datos de entrada, el resultado es el esperado.
 
-- **Web Test Runner (WTR)** — Orquesta los tests: los encuentra, los ejecuta y muestra el resultado en la terminal. Comando \*`npm run test`, paquete `@web/test-runner`.
+- **Web Test Runner (WTR)** — Orquesta los tests: los encuentra, los ejecuta y muestra el resultado en la terminal. Comando `npm run test`, paquete `@web/test-runner`.
 
 - **Open WC Testing** — Comprobaciones del test, escritas con la función `expect` y métodos tipo `.to.equal` / `.to.deep.equal`. Paquete `@open-wc/testing`, importado en `pagination.test.ts` y `recent-searches.test.ts`.
 
@@ -56,8 +57,8 @@ El reto pide al menos dos pruebas unitarias con Web Test Runner (WTR), Open WC T
 
 - **Playwright** — Arranca un navegador “headless” solo para correr los tests. `@web/test-runner-playwright` y `playwrightLauncher` en `web-test-runner.config.mjs`.
 
-- **Chromium** — Es el motor de navegador de código abierto sobre el que se apoyan Chrome, Edge y otros. Playwright descarga una copia solo para tests (a veces sin ventana visible) y ahí se ejecuta tu JavaScript como en un navegador de verdad. Eso importa para APIs del navegador, por ejemplo `localStorage` en `recent-searches.test.ts`.  
-  No hay una carpeta “Chromium” en el repo; el binario queda en la máquina cuando se corre los tests por primera vez.
+- **Chromium** — Es el motor de navegador de código abierto sobre el que se apoyan Chrome, Edge y otros. Playwright descarga una copia solo para tests (a veces sin ventana visible) y ahí se ejecuta el JavaScript como en un navegador real. Eso permite usar APIs del navegador en tests, por ejemplo `localStorage` en `recent-searches.test.ts`.  
+  No hay una carpeta “Chromium” en el repo; el binario queda en la máquina la primera vez que se ejecutan los tests.
 
 - **`src/utils/pagination.test.ts`**: paginación (trozos por página, conteo de páginas, rangos, `clampPage`).
 - **`src/utils/recent-searches.test.ts`**: historial en `localStorage` (orden, duplicados sin distinguir mayúsculas, máximo 10).
@@ -83,6 +84,7 @@ frontend-technical-test/
 └── src/
     ├── main.ts
     ├── style.css
+    ├── vite-env.d.ts
     ├── assets/
     │   ├── hero.png
     │   ├── typescript.svg

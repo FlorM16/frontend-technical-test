@@ -47,7 +47,7 @@ export async function searchCountriesByName(
 ): Promise<Country[]> {
   const q = query.trim();
 
-  // DECISION: si el término está vacío devuelvo [] sin fetch, en lugar de llamar a la API: no tiene sentido buscar “nada” y evita red y respuestas 4xx innecesarias.
+  // DECISION: si el término está vacío se devuelve [] sin fetch, en lugar de llamar al endpoint: no hay consulta útil y se evitan red y respuestas 4xx innecesarias.
   if (!q) {
     return [];
   }
@@ -55,7 +55,7 @@ export async function searchCountriesByName(
   const url = `${BASE_URL}/name/${encodeURIComponent(q)}?fields=cca3,name,capital,region,flags,population,area,languages,currencies,timezones`;
   const response = await fetch(url, { signal });
 
-  // DECISION: ante 404 devuelvo [] y no lanzo error: en REST Countries eso significa “sin coincidencias”, no fallo del servidor; la lista vacía no debe verse como pantalla de error.
+  // DECISION: ante HTTP 404 se devuelve [] y no se lanza Error, en lugar de tratarlo como fallo de red: en REST Countries significa “sin coincidencias”; la pantalla de error queda reservada para otros códigos y errores de red.
   if (response.status === 404) {
     return [];
   }

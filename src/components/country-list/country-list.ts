@@ -43,6 +43,7 @@ export class CountryList extends LitElement {
     this.currentPage = 1;
   }
 
+  // DECISION: se aplica el límite de 12 por vista y la paginación en country-list, en lugar de recortar el array en country-explorer, para cumplir el reto de pasar la lista completa como prop al hijo y mantener el recorte como solo presentación (README). Si cambia `countries`, se reinicia a la página 1 en lugar de conservar el índice, para no quedar en una página fuera de rango.
   willUpdate(changed: PropertyValues<this>) {
     super.willUpdate(changed);
     if (changed.has('countries')) {
@@ -157,7 +158,7 @@ export class CountryList extends LitElement {
     return this.regionWrap(html`
       <div class="grid" role="list">
         ${this.visibleCountries.map(
-          (c) => html`
+      (c) => html`
             <div class="grid-cell" role="listitem">
               <button
                 type="button"
@@ -167,9 +168,9 @@ export class CountryList extends LitElement {
                 @click=${() => this.selectCountry(c)}
               >
                 ${c.flagImageUrl
-                  ? html`<img src=${c.flagImageUrl} alt="" loading="lazy" />
+          ? html`<img src=${c.flagImageUrl} alt="" loading="lazy" />
                     `
-                  : null}
+          : null}
                 <div>
                   <div class="card-title">${c.nameOfficial}</div>
                   <div class="card-meta">${c.capital || '—'}</div>
@@ -178,7 +179,7 @@ export class CountryList extends LitElement {
               </button>
             </div>
           `,
-        )}
+    )}
       </div>
       ${showPager
         ? html`

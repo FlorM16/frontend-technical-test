@@ -44,12 +44,13 @@ export class CountrySearch extends LitElement {
     this.requestUpdate();
   }
 
-  // DECISION: “Buscando…” mientras el debounce está pendiente (antes de emitir el evento), no solo después: el reto técnico pide feedback durante el debounce, no únicamente cuando ya salió el término.
+  // DECISION: se muestra “Buscando…” mientras el debounce está pendiente, no solo después de emitir el evento al padre: el enunciado exige feedback durante la ventana de debounce, no únicamente cuando el término ya se propagó.
   private onInput() {
     this.setPending(true);
     this.scheduleNotify();
   }
 
+  // DECISION: al pulsar un chip reciente se emite country-search-change al instante sin debounce, en lugar de reutilizar el mismo flujo que el input: el término es un valor cerrado, no tecleo carácter a carácter, así que no aplica la misma política anti-spam.
   private pickRecent(term: string) {
     if (this.inputRef.value) {
       this.inputRef.value.value = term;
@@ -81,12 +82,12 @@ export class CountrySearch extends LitElement {
           ${this.pending ? 'Buscando…' : ''}
         </div>
         ${recents.length > 0
-          ? html`
+        ? html`
               <div class="recent" role="region" aria-label="Búsquedas recientes">
                 <span class="recent-label" id="recent-searches-label">Recientes</span>
                 <ul class="recent-list" role="list" aria-labelledby="recent-searches-label">
                   ${recents.map(
-                    (s) => html`
+          (s) => html`
                       <li role="listitem">
                         <button
                           type="button"
@@ -98,11 +99,11 @@ export class CountrySearch extends LitElement {
                         </button>
                       </li>
                     `,
-                  )}
+        )}
                 </ul>
               </div>
             `
-          : null}
+        : null}
       </div>
     `;
   }
