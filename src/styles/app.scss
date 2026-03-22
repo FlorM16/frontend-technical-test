@@ -1,1 +1,6 @@
 @use 'tokens' as *;
+
+:root {
+  font-family: $token-font-family;
+  color: $token-color-text;
+}
