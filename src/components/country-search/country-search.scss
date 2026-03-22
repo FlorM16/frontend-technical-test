@@ -58,6 +58,54 @@ input[type='search']::-webkit-search-cancel-button {
   text-align: left;
 }
 
+.recent {
+  text-align: left;
+}
+
+.recent-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ce-color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.recent-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recent-chip {
+  max-width: 100%;
+  padding: 0.35rem 0.65rem;
+  overflow: hidden;
+  font: inherit;
+  font-size: 0.875rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  border-radius: t.$token-radius;
+  border: 1px solid t.$token-color-border;
+  background: t.$token-color-page;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.recent-chip:hover {
+  border-color: t.$token-accent;
+  background: t.$token-accent-soft;
+}
+
+.recent-chip:focus-visible {
+  outline: 2px solid t.$token-accent;
+  outline-offset: 2px;
+}
+
 @media (min-width: 768px) {
   :host {
     max-width: 32rem;
@@ -71,6 +119,10 @@ input[type='search']::-webkit-search-cancel-button {
 
 @media (prefers-reduced-motion: reduce) {
   input {
+    transition: none;
+  }
+
+  .recent-chip {
     transition: none;
   }
 }

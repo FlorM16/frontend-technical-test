@@ -1,6 +1,7 @@
 import { LitElement, css, html, unsafeCSS } from 'lit';
 import type { Country } from '../../types/country.ts';
 import { searchCountriesByName } from '../../services/countries-api.ts';
+import { addRecentSearch, getRecentSearches } from '../../utils/recent-searches.ts';
 import '../country-search/country-search.ts';
 import '../country-list/country-list.ts';
 import '../country-detail/country-detail.ts';
@@ -27,6 +28,13 @@ export class CountryExplorer extends LitElement {
 
   private abortCtrl: AbortController | undefined;
 
+  private recentSearches: string[] = [];
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    this.recentSearches = getRecentSearches();
+  }
+
   private refresh() {
     this.requestUpdate();
   }
@@ -51,10 +59,12 @@ export class CountryExplorer extends LitElement {
     this.errorMessage = '';
     this.refresh();
 
+    let aborted = false;
     try {
       this.countries = await searchCountriesByName(term, this.abortCtrl.signal);
     } catch (e: unknown) {
       if (e instanceof DOMException && e.name === 'AbortError') {
+        aborted = true;
         return;
       }
       this.countries = [];
@@ -62,6 +72,11 @@ export class CountryExplorer extends LitElement {
         e instanceof Error ? e.message : 'No se pudieron cargar los países.';
     } finally {
       this.loading = false;
+      const trimmed = term.trim();
+      if (!aborted && trimmed) {
+        addRecentSearch(trimmed);
+        this.recentSearches = getRecentSearches();
+      }
       this.refresh();
     }
   }
@@ -104,7 +119,10 @@ export class CountryExplorer extends LitElement {
       <div class="shell">
         <header class="top" role="banner">
           <slot name="heading"></slot>
-          <country-search @country-search-change=${this.onSearchChange}></country-search>
+          <country-search
+            .recentSearches=${this.recentSearches}
+            @country-search-change=${this.onSearchChange}
+          ></country-search>
         </header>
         <main id="explorer-content" class="content-main" tabindex="-1" aria-label="Explorador de países">
           ${this.selectedCountry

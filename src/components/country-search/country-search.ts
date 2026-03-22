@@ -4,13 +4,24 @@ import { debounce, SEARCH_DEBOUNCE_MS } from '../../utils/debounce.ts';
 import searchStyles from './country-search.scss?inline';
 
 export class CountrySearch extends LitElement {
+  static properties = {
+    recentSearches: { type: Array, attribute: false },
+  };
+
   static styles = css`
     ${unsafeCSS(searchStyles)}
   `;
 
+  declare recentSearches: string[];
+
   private inputRef = createRef<HTMLInputElement>();
 
   private pending = false;
+
+  constructor() {
+    super();
+    this.recentSearches = [];
+  }
 
   private readonly flushTerm = () => {
     const raw = this.inputRef.value?.value ?? '';
@@ -39,7 +50,22 @@ export class CountrySearch extends LitElement {
     this.scheduleNotify();
   }
 
+  private pickRecent(term: string) {
+    if (this.inputRef.value) {
+      this.inputRef.value.value = term;
+    }
+    this.setPending(false);
+    this.dispatchEvent(
+      new CustomEvent('country-search-change', {
+        detail: { term },
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
   protected render() {
+    const recents = this.recentSearches ?? [];
     return html`
       <div class="wrap" role="search" aria-label="Buscar países por nombre">
         <label for="country-search-input">Buscar país</label>
@@ -54,6 +80,29 @@ export class CountrySearch extends LitElement {
         <div class="pending" role="status" aria-live="polite">
           ${this.pending ? 'Buscando…' : ''}
         </div>
+        ${recents.length > 0
+          ? html`
+              <div class="recent" role="region" aria-label="Búsquedas recientes">
+                <span class="recent-label" id="recent-searches-label">Recientes</span>
+                <ul class="recent-list" role="list" aria-labelledby="recent-searches-label">
+                  ${recents.map(
+                    (s) => html`
+                      <li role="listitem">
+                        <button
+                          type="button"
+                          class="recent-chip"
+                          aria-label=${`Buscar de nuevo: ${s}`}
+                          @click=${() => this.pickRecent(s)}
+                        >
+                          ${s}
+                        </button>
+                      </li>
+                    `,
+                  )}
+                </ul>
+              </div>
+            `
+          : null}
       </div>
     `;
   }

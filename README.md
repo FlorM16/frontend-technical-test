@@ -22,6 +22,10 @@ Además, si el HTML del servidor y el que Lit generaría en el cliente no fueran
 
 **Nota:** Se eligió **paginación por páginas** en lugar de scroll infinito para un comportamiento predecible, menos carga en el DOM de golpe y controles explícitos accesibles desde teclado.
 
+## Búsquedas recientes (`localStorage`)
+
+Tras cada búsqueda **completada** (sin cancelar por una nueva petición), el término se guarda con **`src/utils/recent-searches.ts`** (clave `country-explorer-recent-searches`, máximo **10** entradas, sin duplicar ignorando mayúsculas). **`country-search`** muestra chips **Recientes** para repetir la búsqueda; si `localStorage` no está disponible, la utilidad falla en silencio.
+
 ## Estructura del código
 
 ```text
