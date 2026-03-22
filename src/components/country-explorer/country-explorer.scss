@@ -1,6 +1,7 @@
 @use '../../styles/tokens' as t;
 
 :host {
+  position: relative;
   display: block;
   --ex-font: #{t.$token-font-family};
   --ex-gap: #{t.$token-space-md};
@@ -8,10 +9,58 @@
   color: t.$token-color-text;
 }
 
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 200;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  color: t.$token-color-text;
+  background: t.$token-color-surface;
+  border: 2px solid t.$token-accent;
+  border-radius: t.$token-radius;
+  cursor: pointer;
+  clip-path: inset(50%);
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.skip-link:focus {
+  clip-path: none;
+  width: auto;
+  height: auto;
+  left: 50%;
+  top: 0.5rem;
+  transform: translateX(-50%);
+  outline: 2px solid t.$token-accent;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skip-link:focus {
+    transform: translateX(-50%);
+  }
+}
+
 .shell {
   display: flex;
   flex-direction: column;
   gap: var(--ex-gap);
+}
+
+.content-main {
+  outline: none;
+}
+
+.content-main:focus-visible {
+  outline: 2px solid t.$token-accent;
+  outline-offset: 4px;
 }
 
 .top {

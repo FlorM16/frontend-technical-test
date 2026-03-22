@@ -41,7 +41,7 @@ export class CountrySearch extends LitElement {
 
   protected render() {
     return html`
-      <div class="wrap">
+      <div class="wrap" role="search" aria-label="Buscar países por nombre">
         <label for="country-search-input">Buscar país</label>
         <input
           id="country-search-input"

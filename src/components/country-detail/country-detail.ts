@@ -22,11 +22,29 @@ export class CountryDetail extends LitElement {
 
   private visibleClassScheduled = false;
 
+  private readonly boundDocKeydown = this.onDocKeydown.bind(this);
+
   constructor() {
     super();
     this.country = null;
     this.exiting = false;
     this.enterReady = false;
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    document.addEventListener('keydown', this.boundDocKeydown);
+  }
+
+  disconnectedCallback(): void {
+    document.removeEventListener('keydown', this.boundDocKeydown);
+    super.disconnectedCallback();
+  }
+
+  private onDocKeydown(e: KeyboardEvent) {
+    if (e.key !== 'Escape' || !this.country || this.exiting) return;
+    e.preventDefault();
+    this.onBackClick();
   }
 
   willUpdate(changed: PropertyValues<this>) {
@@ -98,6 +116,19 @@ export class CountryDetail extends LitElement {
     if (changed.has('country') && this.country) {
       this.deferVisibleClass();
     }
+    this.moveFocusToHeading(changed);
+  }
+
+  private moveFocusToHeading(changed: PropertyValues<this>) {
+    if (!this.country || this.exiting || !this.enterReady) return;
+    const opened = changed.has('country') && this.country != null;
+    const becameVisible = changed.has('enterReady') && this.enterReady;
+    if (!opened && !becameVisible) return;
+    queueMicrotask(() => {
+      this.renderRoot
+        .querySelector<HTMLElement>('#country-detail-heading')
+        ?.focus({ preventScroll: true });
+    });
   }
 
   private formatInt(n: number): string {
@@ -114,8 +145,10 @@ export class CountryDetail extends LitElement {
     return html`
       <div
         class="panel ${this.exiting ? 'panel--exiting' : ''} ${!this.exiting && this.enterReady ? 'panel--visible' : ''}"
+        role="region"
+        aria-labelledby="country-detail-heading"
       >
-        <h2>${c.nameOfficial}</h2>
+        <h2 id="country-detail-heading" tabindex="-1">${c.nameOfficial}</h2>
         <dl>
           <dt>Población</dt>
           <dd>${this.formatInt(c.population)}</dd>

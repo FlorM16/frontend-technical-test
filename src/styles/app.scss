@@ -8,3 +8,11 @@
 body {
   background: $token-color-page;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+}

@@ -19,6 +19,10 @@ export class CountryExplorer extends LitElement {
 
   private selectedCountry: Country | null = null;
 
+  private lastSelectedCca3: string | null = null;
+
+  private focusReturnCca3: string | null = null;
+
   private lastQuery = '';
 
   private abortCtrl: AbortController | undefined;
@@ -26,6 +30,11 @@ export class CountryExplorer extends LitElement {
   private refresh() {
     this.requestUpdate();
   }
+
+  private readonly skipToContent = (e: Event) => {
+    e.preventDefault();
+    this.renderRoot.querySelector<HTMLElement>('#explorer-content')?.focus();
+  };
 
   // DECISION: aborto en disconnectedCallback y no en el constructor: el constructor corre una sola vez al crear el elemento; si el usuario sale de la página o se quita el nodo, hace falta cancelar fetch en curso para no dejar red activa ni actualizar estado de un componente ya desmontado.
   disconnectedCallback() {
@@ -60,17 +69,27 @@ export class CountryExplorer extends LitElement {
   private readonly onSearchChange = (e: Event) => {
     const { term } = (e as CustomEvent<{ term: string }>).detail;
     this.selectedCountry = null;
+    this.lastSelectedCca3 = null;
+    this.focusReturnCca3 = null;
     void this.fetchCountries(term);
   };
 
   private readonly onSelect = (e: Event) => {
-    this.selectedCountry = (e as CustomEvent<Country>).detail;
+    const country = (e as CustomEvent<Country>).detail;
+    this.lastSelectedCca3 = country.cca3;
+    this.selectedCountry = country;
     this.refresh();
   };
 
   private readonly onBack = () => {
+    this.focusReturnCca3 = this.lastSelectedCca3;
     this.selectedCountry = null;
     this.refresh();
+  };
+
+  private readonly onListFocusReturned = () => {
+    this.focusReturnCca3 = null;
+    this.requestUpdate();
   };
 
   private readonly onListRetry = () => {
@@ -79,27 +98,34 @@ export class CountryExplorer extends LitElement {
 
   protected render() {
     return html`
+      <button type="button" class="skip-link" @click=${this.skipToContent}>
+        Saltar al contenido principal
+      </button>
       <div class="shell">
-        <div class="top">
+        <header class="top" role="banner">
           <slot name="heading"></slot>
           <country-search @country-search-change=${this.onSearchChange}></country-search>
-        </div>
-        ${this.selectedCountry
-          ? html`
-              <country-detail
-                .country=${this.selectedCountry}
-                @country-detail-back=${this.onBack}
-              ></country-detail>
-            `
-          : html`
-              <country-list
-                .countries=${this.countries}
-                .loading=${this.loading}
-                .errorMessage=${this.errorMessage}
-                @country-select=${this.onSelect}
-                @country-list-retry=${this.onListRetry}
-              ></country-list>
-            `}
+        </header>
+        <main id="explorer-content" class="content-main" tabindex="-1" aria-label="Explorador de países">
+          ${this.selectedCountry
+            ? html`
+                <country-detail
+                  .country=${this.selectedCountry}
+                  @country-detail-back=${this.onBack}
+                ></country-detail>
+              `
+            : html`
+                <country-list
+                  .countries=${this.countries}
+                  .loading=${this.loading}
+                  .errorMessage=${this.errorMessage}
+                  .focusReturnCca3=${this.focusReturnCca3}
+                  @country-select=${this.onSelect}
+                  @country-list-retry=${this.onListRetry}
+                  @country-list-focus-returned=${this.onListFocusReturned}
+                ></country-list>
+              `}
+        </main>
       </div>
     `;
   }
