@@ -1,7 +1,6 @@
 import { expect } from '@open-wc/testing';
 import { addRecentSearch, getRecentSearches } from './recent-searches.ts';
 
-/** Debe coincidir con STORAGE_KEY en recent-searches.ts (solo para limpiar en tests). */
 const STORAGE_KEY = 'country-explorer-recent-searches';
 
 describe('recent-searches', () => {
