@@ -1,8 +1,12 @@
+@use '../../styles/tokens' as t;
+
 :host {
   display: block;
-  --ce-font-ui: system-ui, sans-serif;
-  --ce-space-gap: 0.5rem;
-  --ce-color-muted: #64748b;
+  width: 100%;
+  max-width: 28rem;
+  --ce-font-ui: #{t.$token-font-family};
+  --ce-space-gap: #{t.$token-space-md};
+  --ce-color-muted: #{t.$token-color-muted};
   font-family: var(--ce-font-ui);
 }
 
@@ -14,15 +18,53 @@
 
 label {
   font-weight: 600;
+  font-size: 0.95rem;
+  color: t.$token-color-text;
+  text-align: left;
 }
 
 input {
   width: 100%;
-  padding: 0.4rem 0.5rem;
+  padding: 0.75rem 1rem;
   font: inherit;
+  font-size: 1.05rem;
+  border: 1px solid t.$token-color-border;
+  border-radius: t.$token-radius;
+  background: t.$token-color-surface;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input:hover {
+  border-color: t.$token-color-border-hover;
+}
+
+input:focus {
+  outline: none;
+  border-color: t.$token-accent;
+  box-shadow: 0 0 0 3px t.$token-focus-ring;
+}
+
+input[type='search']::-webkit-search-decoration,
+input[type='search']::-webkit-search-cancel-button {
+  -webkit-appearance: none;
 }
 
 .pending {
+  min-height: 1.25rem;
   font-size: 0.875rem;
   color: var(--ce-color-muted);
+  text-align: left;
+}
+
+@media (min-width: 768px) {
+  :host {
+    max-width: 32rem;
+  }
+
+  input {
+    font-size: 1.1rem;
+    padding: 0.8rem 1.1rem;
+  }
 }

@@ -20,10 +20,10 @@ function mapToCountry(raw: RestCountry): Country {
   const languageLabels = raw.languages ? Object.values(raw.languages) : [];
   const currencyLabels = raw.currencies
     ? Object.entries(raw.currencies).map(([code, c]) => {
-        const label = c?.name ?? code;
-        const sym = c?.symbol ? ` (${c.symbol})` : '';
-        return `${code} — ${label}${sym}`;
-      })
+      const label = c?.name ?? code;
+      const sym = c?.symbol ? ` (${c.symbol})` : '';
+      return `${code} — ${label}${sym}`;
+    })
     : [];
 
   return {

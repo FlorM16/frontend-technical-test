@@ -1,29 +1,55 @@
+@use '../../styles/tokens' as t;
+
 :host {
-  display: block;
-  --cd-font: system-ui, sans-serif;
-  --cd-color-muted: #666;
-  --cd-space: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  --cd-font: #{t.$token-font-family};
+  --cd-color-muted: #{t.$token-color-muted};
+  --cd-space: #{t.$token-space-md};
   font-family: var(--cd-font);
+  color: t.$token-color-text;
 }
 
 .panel {
-  padding: var(--cd-space);
-  border: 1px solid #ccc;
-  animation: cd-in 0.15s ease-out;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 26rem;
+  margin-inline: auto;
+  padding: t.$token-space-md;
+  border: 1px solid t.$token-color-border;
+  border-radius: t.$token-radius;
+  background: t.$token-color-surface;
+  box-shadow: t.$token-shadow;
+  transition:
+    opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-@keyframes cd-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.panel:not(.panel--visible):not(.panel--exiting) {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+.panel.panel--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.panel.panel--exiting {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.42s ease-in,
+    transform 0.42s ease-in;
 }
 
 h2 {
   margin: 0 0 var(--cd-space);
-  font-size: 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.3;
 }
 
 dl {
@@ -38,13 +64,47 @@ dt {
 
 dd {
   margin: 0 0 var(--cd-space);
+  font-size: 0.9rem;
 }
 
 .back {
   margin-top: var(--cd-space);
-  padding: 0.35rem 0.6rem;
+  padding: 0.45rem 0.85rem;
   font: inherit;
   cursor: pointer;
-  border: 1px solid #111;
-  background: #fff;
+  border-radius: t.$token-radius;
+  border: 1px solid t.$token-accent-pale;
+  background: t.$token-color-surface;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.back:hover {
+  border-color: t.$token-accent;
+  background: t.$token-accent-soft;
+}
+
+.back:focus-visible {
+  outline: 2px solid t.$token-accent;
+  outline-offset: 2px;
+}
+
+.back:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    transition: none;
+  }
+
+  .panel:not(.panel--visible):not(.panel--exiting) {
+    opacity: 1;
+    transform: none;
+  }
+
+  .panel.panel--exiting {
+    opacity: 0;
+    transform: none;
+  }
 }

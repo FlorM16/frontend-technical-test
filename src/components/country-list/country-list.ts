@@ -72,7 +72,7 @@ export class CountryList extends LitElement {
     }
 
     if (this.countries.length === 0) {
-      return html`<div class="state" role="status">No hay resultados para mostrar.</div>`;
+      return html`<div class="state state--empty" role="status">No hay resultados para mostrar.</div>`;
     }
 
     return html`
@@ -83,7 +83,7 @@ export class CountryList extends LitElement {
               ${c.flagImageUrl
                 ? html`<img src=${c.flagImageUrl} alt="" loading="lazy" />`
                 : null}
-              <div class="card-body">
+              <div>
                 <div class="card-title">${c.nameOfficial}</div>
                 <div class="card-meta">${c.capital || '—'}</div>
                 <div class="card-meta">${c.region || '—'}</div>
