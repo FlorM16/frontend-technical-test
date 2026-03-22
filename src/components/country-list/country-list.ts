@@ -2,9 +2,14 @@ import { LitElement, css, html, unsafeCSS } from 'lit';
 import type { PropertyValues } from 'lit';
 import type { TemplateResult } from 'lit';
 import type { Country } from '../../types/country.ts';
+import {
+  PAGE_SIZE,
+  clampPage,
+  getDisplayRange,
+  getPageCount,
+  getPageSlice,
+} from '../../utils/pagination.ts';
 import listStyles from './country-list.scss?inline';
-
-const MAX_CARDS = 12;
 
 export class CountryList extends LitElement {
   static properties = {
@@ -12,6 +17,7 @@ export class CountryList extends LitElement {
     loading: { type: Boolean },
     errorMessage: { type: String, attribute: false },
     focusReturnCca3: { type: String, attribute: false },
+    currentPage: { type: Number, state: true },
   };
 
   static styles = css`
@@ -26,17 +32,40 @@ export class CountryList extends LitElement {
 
   declare focusReturnCca3: string | null;
 
+  declare currentPage: number;
+
   constructor() {
     super();
     this.countries = [];
     this.loading = false;
     this.errorMessage = '';
     this.focusReturnCca3 = null;
+    this.currentPage = 1;
+  }
+
+  willUpdate(changed: PropertyValues<this>) {
+    super.willUpdate(changed);
+    if (changed.has('countries')) {
+      this.currentPage = 1;
+    }
+  }
+
+  private get pageCount(): number {
+    return getPageCount(this.countries.length, PAGE_SIZE);
   }
 
   private get visibleCountries(): Country[] {
-    // DECISION: corto a 12 solo al pintar (slice en el render), y no en el explorer: el padre debe seguir pasando la lista completa; el tope es presentación (documentado en el README).
-    return this.countries.slice(0, MAX_CARDS);
+    return getPageSlice(this.countries, this.currentPage, PAGE_SIZE);
+  }
+
+  private goToPage(next: number) {
+    const page = clampPage(next, this.pageCount);
+    if (page === this.currentPage) return;
+    this.currentPage = page;
+    const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    queueMicrotask(() => {
+      this.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'nearest' });
+    });
   }
 
   private selectCountry(country: Country) {
@@ -71,17 +100,26 @@ export class CountryList extends LitElement {
     super.updated(changed);
     if (changed.has('focusReturnCca3') && this.focusReturnCca3) {
       const id = this.focusReturnCca3;
+      const idx = this.countries.findIndex((c) => c.cca3 === id);
+      if (idx >= 0) {
+        const page = Math.floor(idx / PAGE_SIZE) + 1;
+        this.currentPage = clampPage(page, this.pageCount);
+      }
       queueMicrotask(() => {
-        const btn = this.renderRoot.querySelector(
-          `button[data-cca3="${CSS.escape(id)}"]`,
-        ) as HTMLButtonElement | null;
-        btn?.focus();
-        this.dispatchEvent(
-          new CustomEvent('country-list-focus-returned', {
-            bubbles: true,
-            composed: true,
-          }),
-        );
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            const btn = this.renderRoot.querySelector(
+              `button[data-cca3="${CSS.escape(id)}"]`,
+            ) as HTMLButtonElement | null;
+            btn?.focus();
+            this.dispatchEvent(
+              new CustomEvent('country-list-focus-returned', {
+                bubbles: true,
+                composed: true,
+              }),
+            );
+          });
+        });
       });
     }
   }
@@ -111,6 +149,11 @@ export class CountryList extends LitElement {
       `);
     }
 
+    const total = this.countries.length;
+    const { from, to } = getDisplayRange(this.currentPage, PAGE_SIZE, total);
+    const pages = this.pageCount;
+    const showPager = pages > 1;
+
     return this.regionWrap(html`
       <div class="grid" role="list">
         ${this.visibleCountries.map(
@@ -137,6 +180,33 @@ export class CountryList extends LitElement {
           `,
         )}
       </div>
+      ${showPager
+        ? html`
+            <nav class="pager" aria-label="Paginación de resultados">
+              <button
+                type="button"
+                class="pager-btn"
+                ?disabled=${this.currentPage <= 1}
+                aria-label="Página anterior"
+                @click=${() => this.goToPage(this.currentPage - 1)}
+              >
+                Anterior
+              </button>
+              <p class="pager-status" aria-live="polite">
+                Página ${this.currentPage} de ${pages} · ${from}–${to} de ${total}
+              </p>
+              <button
+                type="button"
+                class="pager-btn"
+                ?disabled=${this.currentPage >= pages}
+                aria-label="Página siguiente"
+                @click=${() => this.goToPage(this.currentPage + 1)}
+              >
+                Siguiente
+              </button>
+            </nav>
+          `
+        : null}
     `);
   }
 }

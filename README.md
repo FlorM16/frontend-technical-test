@@ -14,13 +14,13 @@ Prueba técnica — Exploración de países con Web Components (Lit 3).
 Añadir SSR e hidratación implicaría montar y mantener otro trozo en el servidor, vigilar código que solo funciona en el navegador, y desplegar con más piezas.
 Además, si el HTML del servidor y el que Lit generaría en el cliente no fueran idénticos, aparecen fallos difíciles de depurar.
 
-## Límite de 12 resultados en la lista
+## Paginación en la lista
 
-- **`country-explorer`** guarda y envía a la lista todos los países que devuelve la API.
-- **`country-list`** recibe esa lista completa en la prop `countries`, pero solo pinta las primeras 12 tarjetas, el resto no se muestra en pantalla.
+- **`country-explorer`** sigue pasando a la lista **todos** los países que devuelve la API (sin recortar en el padre).
+- **`country-list`** muestra **12 tarjetas por página** y, si hay más resultados, un pie con **Anterior** / **Siguiente**, texto del tipo “Página 2 de 4 · 13–24 de 40” y `aria-live` para lectores de pantalla.
+- La lógica de página está en **`src/utils/pagination.ts`** (`PAGE_SIZE`, `getPageSlice`, `getPageCount`, etc.). Cada búsqueda nueva reinicia la página a 1; al volver del detalle, si la tarjeta estaba en otra página, la lista salta a esa página antes de devolver el foco.
 
-**¿Por qué el corte está en la lista?** Porque el límite es solo “cuántas tarjetas enseño”, no “cuántos datos tengo”.
-El explorador sigue teniendo la respuesta completa por si en el futuro hiciera falta mostrar más, paginar o usar esos datos en otro sitio. Así la lista también sirve en otros contextos: puedes darle muchos países y ella decide cuántos enseña, sin obligar al padre a recortar la lista.
+**Nota:** Se eligió **paginación por páginas** en lugar de scroll infinito para un comportamiento predecible, menos carga en el DOM de golpe y controles explícitos accesibles desde teclado.
 
 ## Estructura del código
 
