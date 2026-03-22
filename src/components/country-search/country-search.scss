@@ -1,19 +1,9 @@
-@use '../../styles/tokens' as t;
-
 :host {
   display: block;
-  width: 100%;
-  max-width: t.$token-field-max-width;
-  --ce-color-muted: #{t.$token-color-muted};
-  --ce-space-gap: #{t.$token-space-sm};
-  --ce-font-ui: #{t.$token-font-family};
+  --ce-font-ui: system-ui, sans-serif;
+  --ce-space-gap: 0.5rem;
+  --ce-color-muted: #64748b;
   font-family: var(--ce-font-ui);
-}
-
-@media (max-width: 640px) {
-  :host {
-    max-width: none;
-  }
 }
 
 .wrap {
@@ -28,12 +18,11 @@ label {
 
 input {
   width: 100%;
-  padding: t.$token-space-sm t.$token-input-padding-inline;
+  padding: 0.4rem 0.5rem;
   font: inherit;
 }
 
 .pending {
-  min-height: 1.25rem;
   font-size: 0.875rem;
   color: var(--ce-color-muted);
 }
